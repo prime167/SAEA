@@ -38,7 +38,7 @@ namespace IOCTestClient
         public bool Connected => _clientSocket != null && _clientSocket.Connected;
 
         //服务器主动发出数据事件
-        public EventHandler<ServerDataReceivedEventArgs> ServerDataHandler;
+        public EventHandler<EventArgs<byte[]>> ServerDataHandler;
 
         //服务器主动关闭连接委托及事件
         public EventHandler ServerStopEvent;
@@ -303,7 +303,7 @@ namespace IOCTestClient
 
             //ServerDataHandler(buff); //可直接调用.
             //但我更喜欢用新的线程,这样不拖延接收新数据.
-            var thread = new Thread((obj) => { ServerDataHandler(this, new ServerDataReceivedEventArgs { Buff = (byte[])obj }); })
+            var thread = new Thread((obj) => { ServerDataHandler(this, new EventArgs<byte[]>((byte[])obj)); })
             {
                 IsBackground = true
             };

@@ -10,7 +10,7 @@ namespace IOCTestClient
     internal class Request
     {
         //定义事件与委托
-        public EventHandler<ReceiveDataEventArgs> OnReceiveData;
+        public EventHandler<EventArgs<object>> OnReceiveData;
         public EventHandler OnServerClosed;
 
         /// <summary>
@@ -31,7 +31,7 @@ namespace IOCTestClient
         /// <summary>
         /// 已登录的用户信息
         /// </summary>
-        public static UserInfoModel UserInfo { get; } = null;
+        public UserInfoModel UserInfo { get; set; }
 
         internal static SocketManager Manager { get; set; }
 
@@ -55,6 +55,7 @@ namespace IOCTestClient
                 //连接成功后,就注册事件. 最好在成功后再注册.
                 Manager.ServerDataHandler += OnReceivedServerData;
                 Manager.ServerStopEvent += OnServerStopEvent;
+                StartHeartbeat();
             }
 
             return error;
@@ -117,13 +118,13 @@ namespace IOCTestClient
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void OnReceivedServerData(object sender, ServerDataReceivedEventArgs e)
+        private void OnReceivedServerData(object sender, EventArgs<byte[]> e)
         {
-            var str = Encoding.UTF8.GetString(e.Buff);
+            var str = Encoding.UTF8.GetString(e.Value);
             Console.WriteLine($"receive data {str}");
 
             //你要处理的代码,可以实现把buff转化成你具体的对象, 再传给前台
-            OnReceiveData?.Invoke(null, new ReceiveDataEventArgs() { Message = e.Buff });
+            OnReceiveData?.Invoke(null, new EventArgs<object>(e.Value));
         }
 
         /// <summary>
@@ -138,7 +139,7 @@ namespace IOCTestClient
         /// <summary>
         /// 开启心跳
         /// </summary>
-        private static void StartHeartbeat()
+        private void StartHeartbeat()
         {
             if (_heartTimer == null)
             {
@@ -147,7 +148,7 @@ namespace IOCTestClient
             }
 
             _heartTimer.AutoReset = true;     //循环执行
-            _heartTimer.Interval = 30 * 1000; //每30秒执行一次
+            _heartTimer.Interval = 3 * 1000; //每3秒执行一次
             _heartTimer.Enabled = true;
             _heartTimer.Start();
 
@@ -157,7 +158,7 @@ namespace IOCTestClient
                 Data = new Dictionary<string, object>()
             };
 
-            _heartRes.Data.Add("beat", Function.Base64Encode(UserInfo.Nickname + UserInfo.UserId + DateTime.Now.ToString("HH:mm:ss")));
+            _heartRes.Data.Add("beat", UserInfo.Nickname + ":"+UserInfo.UserId+" " + DateTime.Now.ToString("HH:mm:ss"));
         }
 
         /// <summary>
@@ -165,8 +166,11 @@ namespace IOCTestClient
         /// </summary>
         /// <param name="source"></param>
         /// <param name="e"></param>
-        private static void TimeElapsed(object source, ElapsedEventArgs e)
+        private void TimeElapsed(object source, ElapsedEventArgs e)
         {
+            _heartRes.Data.Clear();
+            _heartRes.Data.Add("beat", UserInfo.Nickname + ":" + UserInfo.UserId+" " + DateTime.Now.ToString("HH:mm:ss"));
+
             Send(_heartRes);
         }
     }

@@ -21,12 +21,12 @@ namespace IOCTestServer
         /// <summary>
         /// 客户端连接数量变化事件
         /// </summary>
-        public EventHandler<ClientNumChangeEventArgs> ClientNumberChange;
+        public EventHandler<EventArgs<AsyncUserToken, int>> ClientNumberChange;
 
         /// <summary>
         /// 接收到客户端的数据事件
         /// </summary>
-        public EventHandler<ReceiveDataEventArgs> ReceiveClientData;
+        public EventHandler<EventArgs<AsyncUserToken,byte[]>> ReceiveClientData;
 
         /// <summary>
         /// 获取客户端列表
@@ -169,7 +169,7 @@ namespace IOCTestServer
             ProcessAccept(e);
         }
 
-        protected virtual void OnClientNumChanged(ClientNumChangeEventArgs e)
+        protected virtual void OnClientNumChanged(EventArgs<AsyncUserToken, int> e)
         {
             ClientNumberChange?.Invoke(this, e);
         }
@@ -191,7 +191,7 @@ namespace IOCTestServer
 
                 lock (ClientList) { ClientList.Add(userToken); }
 
-                OnClientNumChanged(new ClientNumChangeEventArgs { Num = 1, Token = userToken });
+                OnClientNumChanged(new EventArgs<AsyncUserToken,int>(userToken,1));
 
                 var buff = Encoding.UTF8.GetBytes("welcome");
 
@@ -276,7 +276,7 @@ namespace IOCTestServer
                         }
 
                         //将数据包交给后台处理,这里你也可以新开个线程来处理.加快速度.
-                        var e1 = new ReceiveDataEventArgs() { Token = token, Buff = rev };
+                        var e1 = new EventArgs<AsyncUserToken,byte[]>(token, rev);
                         OnReceiveClientData(e1);
 
                         //这里API处理完后,并没有返回结果,当然结果是要返回的,却不是在这里, 这里的代码只管接收.
@@ -298,7 +298,7 @@ namespace IOCTestServer
             }
         }
 
-        protected virtual void OnReceiveClientData(ReceiveDataEventArgs arg)
+        protected virtual void OnReceiveClientData(EventArgs<AsyncUserToken, byte[]> arg)
         {
             ReceiveClientData?.Invoke(this, arg);
         }
@@ -351,7 +351,7 @@ namespace IOCTestServer
             _pool.Push(e);
 
             //如果有事件,则调用事件,发送客户端数量变化通知
-            OnClientNumChanged(new ClientNumChangeEventArgs { Num = -1, Token = token });
+            OnClientNumChanged(new EventArgs<AsyncUserToken, int>(token, 1));
         }
 
         /// <summary>

@@ -21,18 +21,18 @@ namespace IOCTestServer
             Console.ReadKey();
         }
 
-        private static void Socket_ClientNumberChange(object sender, ClientNumChangeEventArgs e)
+        private static void Socket_ClientNumberChange(object sender, EventArgs<AsyncUserToken, int> e)
         {
             var count =_socket.ClientList.Count;
             Console.WriteLine($"connected client count {count}");
         }
 
-        private static void Socket_ReceiveClientData(object sender, ReceiveDataEventArgs e)
+        private static void Socket_ReceiveClientData(object sender, EventArgs<AsyncUserToken, byte[]> e)
         {
-            var str = Encoding.UTF8.GetString(e.Buff);
+            var str = Encoding.UTF8.GetString(e.Value2);
             Console.WriteLine($"receive data {str}");
             var buff1 = Encoding.UTF8.GetBytes($"{str} ok");
-            _socket.SendMessage(e.Token, buff1);
+            _socket.SendMessage(e.Value, buff1);
         }
     }
 }

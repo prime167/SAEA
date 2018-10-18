@@ -49,9 +49,8 @@
     <Compile Include="ApiCode.cs" />
     <Compile Include="BufferManager.cs" />
     <Compile Include="ApiResponse.cs" />
+    <Compile Include="EventArgs.cs" />
     <Compile Include="Function.cs" />
-    <Compile Include="ServerDataReceivedEventArgs.cs" />
-    <Compile Include="ReceiveDataEventArgs.cs" />
     <Compile Include="SocketManager.cs" />
     <Compile Include="Request.cs" />
     <Compile Include="MySocketEventArgs.cs" />

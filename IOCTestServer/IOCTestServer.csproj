@@ -44,8 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BufferManager.cs" />
-    <Compile Include="ClientNumChangeEventArgs.cs" />
-    <Compile Include="ReceiveDataEventArgs.cs" />
+    <Compile Include="EventArgs.cs" />
     <Compile Include="SocketManager.cs" />
     <Compile Include="SocketEventPool.cs" />
     <Compile Include="AsyncUserToken.cs" />
