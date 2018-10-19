@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using Common;
 
 namespace IOCTestClient
 {
@@ -303,7 +304,7 @@ namespace IOCTestClient
 
             //ServerDataHandler(buff); //可直接调用.
             //但我更喜欢用新的线程,这样不拖延接收新数据.
-            var thread = new Thread((obj) => { ServerDataHandler(this, new EventArgs<byte[]>((byte[])obj)); })
+            var thread = new Thread((obj) => { ServerDataHandler(this, ServerDataHandler.CreateArgs((byte[])obj)); })
             {
                 IsBackground = true
             };

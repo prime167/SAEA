@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using Common;
 
 namespace IOCTestServer
 {
@@ -26,7 +27,7 @@ namespace IOCTestServer
         /// <summary>
         /// 接收到客户端的数据事件
         /// </summary>
-        public EventHandler<EventArgs<AsyncUserToken,byte[]>> ReceiveClientData;
+        public EventHandler<EventArgs<AsyncUserToken, byte[]>> ReceiveClientData;
 
         /// <summary>
         /// 获取客户端列表
@@ -126,6 +127,7 @@ namespace IOCTestServer
             lock (ClientList) { ClientList.Clear(); }
 
             ClientNumberChange?.Invoke(-cCount, null);
+            OnClientNumChanged(ClientNumberChange.CreateArgs(null, -cCount));
         }
 
         public void CloseClient(AsyncUserToken token)
@@ -191,11 +193,8 @@ namespace IOCTestServer
 
                 lock (ClientList) { ClientList.Add(userToken); }
 
-                OnClientNumChanged(new EventArgs<AsyncUserToken,int>(userToken,1));
+                OnClientNumChanged(ClientNumberChange.CreateArgs(userToken, 1));
 
-                var buff = Encoding.UTF8.GetBytes("welcome");
-
-                SendMessage(userToken, buff);
                 if (!e.AcceptSocket.ReceiveAsync(readEventArgs))
                 {
                     ProcessReceive(readEventArgs);
@@ -276,7 +275,7 @@ namespace IOCTestServer
                         }
 
                         //将数据包交给后台处理,这里你也可以新开个线程来处理.加快速度.
-                        var e1 = new EventArgs<AsyncUserToken,byte[]>(token, rev);
+                        var e1 = ReceiveClientData.CreateArgs(token, rev);
                         OnReceiveClientData(e1);
 
                         //这里API处理完后,并没有返回结果,当然结果是要返回的,却不是在这里, 这里的代码只管接收.
@@ -351,7 +350,7 @@ namespace IOCTestServer
             _pool.Push(e);
 
             //如果有事件,则调用事件,发送客户端数量变化通知
-            OnClientNumChanged(new EventArgs<AsyncUserToken, int>(token, 1));
+            OnClientNumChanged(ClientNumberChange.CreateArgs(token, 1));
         }
 
         /// <summary>
@@ -377,7 +376,7 @@ namespace IOCTestServer
 
                 //新建异步发送对象, 发送消息  
                 var sendArg = new SocketAsyncEventArgs { UserToken = token };
-                sendArg.SetBuffer(buff, 0, buff.Length);  //将数据放置进去.  
+                sendArg.SetBuffer(buff, 0, buff.Length);  //将数据放置进去.
                 token.Socket.SendAsync(sendArg);
             }
             catch (Exception)

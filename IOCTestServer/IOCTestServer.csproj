@@ -44,7 +44,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BufferManager.cs" />
-    <Compile Include="EventArgs.cs" />
     <Compile Include="SocketManager.cs" />
     <Compile Include="SocketEventPool.cs" />
     <Compile Include="AsyncUserToken.cs" />
@@ -53,6 +52,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Common\Common.csproj">
+      <Project>{274CDA15-F1E8-459D-9AE8-ADE2351F7888}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

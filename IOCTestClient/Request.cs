@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Text;
 using System.Timers;
+using Common;
 using Newtonsoft.Json;
 
 namespace IOCTestClient
@@ -124,7 +125,7 @@ namespace IOCTestClient
             Console.WriteLine($"receive data {str}");
 
             //你要处理的代码,可以实现把buff转化成你具体的对象, 再传给前台
-            OnReceiveData?.Invoke(null, new EventArgs<object>(e.Value));
+            OnReceiveData?.Invoke(null, OnReceiveData.CreateArgs(e.Value));
         }
 
         /// <summary>
